@@ -1,0 +1,161 @@
+package aufgabe2.client.gui.view;
+
+import java.io.IOException;
+
+import aufgabe2.client.socket.ChatClient;
+import javafx.event.EventHandler;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+
+public class ChatGUI {
+
+	private ChatClient client;
+
+	/**
+	 * Button, um die Nachrichten zu verschicken
+	 */
+	private Button sendMessage;
+
+	/**
+	 * TextField, in dem die Nachrichten geschrieben werden
+	 */
+	private TextField messageBox;
+
+	/**
+	 * TextArea mit den bisher empfangenen Nachrichten
+	 */
+	private TextArea messageHistory;
+
+	/**
+	 * GridPane
+	 */
+	private GridPane gridPane;
+
+	/**
+	 * Scene
+	 */
+	private Scene scene;
+
+	/**
+	 * Username
+	 */
+	private String userName;
+
+	/**
+	 * Name des ChatRooms
+	 */
+	private String roomName;
+
+	/**
+	 * Name des Servers
+	 */
+	private String serverName;
+
+	/**
+	 * Stage
+	 */
+	private Stage primaryStage;
+
+	/**
+	 * Initialisieren der Bestandteile
+	 */
+	public ChatGUI() {
+		this.primaryStage = new Stage();
+		this.sendMessage = new Button("Send Message");
+		this.messageBox = new TextField();
+		this.messageHistory = new TextArea();
+		this.gridPane = new GridPane();
+
+		this.messageBox.setPrefWidth(640);
+		this.messageBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode().equals(KeyCode.ENTER)) {
+					sendMessage();
+				}
+			}
+		});
+		this.messageHistory.setPrefSize(790, 550);
+		this.sendMessage.setPrefWidth(150);
+		this.sendMessage.setOnAction(event -> sendMessage());
+		this.messageHistory.setEditable(false);
+		this.gridPane.setAlignment(Pos.CENTER);
+		this.gridPane.setPrefSize(800, 590);
+		this.gridPane.setVgap(5);
+		this.gridPane.setHgap(5);
+
+		this.gridPane.add(messageBox, 0, 1);
+		this.gridPane.add(messageHistory, 0, 0);
+		this.gridPane.add(sendMessage, 1, 1);
+		GridPane.setColumnSpan(messageHistory, 2);
+		this.scene = new Scene(this.gridPane);
+		primaryStage.setScene(scene);
+		primaryStage.show();
+	}
+
+	/**
+	 * Starten der GUI
+	 */
+	public void show() {
+		primaryStage.setScene(scene);
+		//primaryStage.setTitle(serverName + " " + roomName + " - " + userName);
+		primaryStage.show();
+		//this.recieveMessage();
+	}
+
+	/**
+	 * Fügt eine neue Nachricht zum Fenster hinzu
+	 * 
+	 * @param message
+	 */
+	private void addMessage(String message) {
+		if (messageHistory.getText().isEmpty()) {
+			this.messageHistory.setText(message);
+		} else {
+			this.messageHistory.setText(this.messageHistory.getText() + "\n\n" + message);
+		}
+	}
+
+	private void sendMessage() {
+		if (!messageBox.getText().isEmpty()) {
+			try {
+				client.sendMessage(messageBox.getText());
+				messageBox.setText("");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		recieveMessage();
+	}
+
+	private void recieveMessage() {
+		String message = client.getMessage();
+		if (!(message == null || message.isEmpty())) {
+			addMessage(message);
+		}
+	}
+
+	public Button getMessageButton() {
+		return sendMessage;
+	}
+
+	public TextField getMessageField() {
+		return messageBox;
+	}
+
+	public void setClient(ChatClient client) {
+		this.client = client;
+		this.userName = client.getUserName();
+		this.roomName = client.getChatRoom();
+
+	}
+
+}

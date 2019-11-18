@@ -1,0 +1,9 @@
+########## - Start: 2017-11-09 - ##########
+/141.22.27.104:1234
+HELLO lab25.cpt.haw-hamburg.de
+ROOMS
+ChatRoom2
+ChatRoom1
+ENDROOMS
+LOGIN adasfa ChatRoom2
+LOGGED-IN
